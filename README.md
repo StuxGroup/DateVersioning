@@ -23,7 +23,7 @@ Later versions always have greater precedence: dates compare in order, and on th
 explains the differences and gives a SemVer form for registries that need one.
 
 Read the full specification in [SPEC.md](SPEC.md), at [datevers.ing](https://datevers.ing), or as
-plain text at <https://datevers.ing/spec.md> (also [/llms.txt](https://datevers.ing/llms.txt) and
+plain text at <https://datevers.ing/spec/latest.md> (or <https://datevers.ing/spec.md>) (also [/llms.txt](https://datevers.ing/llms.txt) and
 [/datever.json](https://datevers.ing/datever.json) for AI tools and programs).
 
 Using it? Add a badge to your README:
@@ -51,7 +51,9 @@ extensions, so headings get the same anchor ids as on GitHub. It writes `_site/`
 
 - `/`, the home page: the specification with a "Next version" and a "Validate" tool
 - `/spec.md`, a byte-for-byte copy of `SPEC.md`, and `/spec/<version>/` plus `/spec/<version>.md`, a
-  permanent page and file for each version (the version comes from `SPEC.md`'s first heading)
+  permanent page and file for each version (the version comes from `SPEC.md`'s first heading;
+  earlier versions are kept in `spec-archive/`)
+- `/spec/latest/` and `/spec/latest.md`, always the current specification (rendered, not a redirect)
 - `/llms.txt` and `/datever.json`
 - `/changelogs/` (with `/changelog/` redirecting), `/legal/` ("Boring Legal Stuff") and its six pages,
   `/sitemap/`, `sitemap.xml`, `robots.txt` and `404.html`

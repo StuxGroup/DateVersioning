@@ -291,6 +291,8 @@ class Site:
             "url": BASE_URL + "/",
             "spec_url": f"{BASE_URL}/spec/{v}/",
             "spec_markdown_url": f"{BASE_URL}/spec.md",
+            "latest_url": f"{BASE_URL}/spec/latest/",
+            "latest_markdown_url": f"{BASE_URL}/spec/latest.md",
             "spec_permalink_markdown_url": f"{BASE_URL}/spec/{v}.md",
             "llms_txt_url": f"{BASE_URL}/llms.txt",
             "repository": "https://github.com/StuxGroup/DateVersioning",
@@ -360,7 +362,7 @@ class Site:
             latest = ver == self.spec_version
             note = (f'This is the permanent page for Date Versioning <strong>{esc(ver)}</strong>, which '
                     + ("is the current specification. " if latest else f'has been superseded by <a href="/spec/{esc(self.spec_version)}/">{esc(self.spec_version)}</a>. ')
-                    + f'Plain text: <a href="/spec/{esc(ver)}.md">/spec/{esc(ver)}.md</a>. The latest version is always at <a href="/">datevers.ing</a> and <a href="/spec.md">/spec.md</a>.')
+                    + f'Plain text: <a href="/spec/{esc(ver)}.md">/spec/{esc(ver)}.md</a>. The latest version is always at <a href="/spec/latest/">/spec/latest/</a> and <a href="/spec/latest.md">/spec/latest.md</a>.')
             body = (f'<div class="doc-layout"><aside class="toc" aria-label="Table of contents"><p class="toc-title">On this page</p>{toc_html(entries)}</aside>'
                     f'<div class="prose doc-body"><div class="permalink-note"><p>{note}</p></div>'
                     f'{title_h1}{lead}{"".join(s for _i, s in sections)}</div></div>')
@@ -369,6 +371,21 @@ class Site:
                       f"The permanent page for version {ver} of the Date Versioning specification.", content,
                       sitemap={"label": f"Specification {ver}", "sources": [source], "priority": "0.8", "freq": "yearly",
                                "blurb": "The permanent page for this version of the specification."})
+            if latest:
+                # /spec/latest/ always renders the current specification (not a redirect, so tools that
+                # fetch it get the spec itself); /spec/latest.md is its plain text.
+                latest_note = (f'This page always shows the latest Date Versioning specification, currently '
+                               f'<strong>{esc(ver)}</strong>. To refer to this exact version, link its permanent page, '
+                               f'<a href="/spec/{esc(ver)}/">/spec/{esc(ver)}/</a>. Plain text: '
+                               f'<a href="/spec/latest.md">/spec/latest.md</a>.')
+                latest_body = body.replace(f'<div class="permalink-note"><p>{note}</p></div>',
+                                           f'<div class="permalink-note"><p>{latest_note}</p></div>', 1)
+                self.page("/spec/latest/", "Date Versioning: latest specification",
+                          f"The latest version of the Date Versioning specification, currently {ver}.",
+                          content.replace(body, latest_body, 1),
+                          sitemap={"label": "Latest specification", "sources": [source], "priority": "0.9", "freq": "monthly",
+                                   "blurb": f"Always the current specification, now {ver}."})
+                write("spec/latest.md", text)
 
     def build_changelogs(self) -> None:
         cards = render_changelog(read(ROOT / "CHANGELOG.md"))

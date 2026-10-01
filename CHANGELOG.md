@@ -4,6 +4,17 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.10.01-2
+
+### Added
+
+- `/spec/latest/`, which always shows the current specification (rendered in place, not a redirect, so tools that fetch it get the specification itself), and `/spec/latest.md`, its plain text
+- `latest_url` and `latest_markdown_url` in `datever.json`, and both links in `llms.txt`
+
+### Changed
+
+- Each version's permanent page links to `/spec/latest/` as the place the latest version always lives
+
 ## v26.10.01-1
 
 ### Added

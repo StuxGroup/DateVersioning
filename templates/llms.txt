@@ -15,7 +15,8 @@ The essentials (the specification is the source of truth):
 
 ## Specification
 
-- [Date Versioning specification (Markdown, latest)]({{base}}/spec.md): the full specification as plain text
+- [Date Versioning specification (Markdown, latest)]({{base}}/spec/latest.md): the full, current specification as plain text (also at {{base}}/spec.md)
+- [Date Versioning specification (web page, latest)]({{base}}/spec/latest/): always the current specification, rendered
 - [Date Versioning {{spec_version}} (Markdown, permanent)]({{base}}/spec/{{spec_version}}.md): this version of the specification, permanently
 - [Date Versioning {{spec_version}} (web page)]({{base}}/spec/{{spec_version}}/): the same, rendered
 
