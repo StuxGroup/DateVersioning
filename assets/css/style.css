@@ -293,14 +293,15 @@ h2:hover .headerlink, h3:hover .headerlink, .headerlink:focus-visible { opacity:
 .cl-list strong { color: var(--text); }
 .cl-msg { color: var(--text-muted); }
 
-/* Footer: brand line and links on top; copyright, "Created with" and the version below a divider */
+/* Footer: the Stux.Group logo in its own column on the left, spanning both rows; to its right,
+   "A Versioning Standard" and the links, then (below a divider) the copyright, "Created with" and the version. */
 .site-footer { border-top: 1px solid var(--border); padding: 32px 0 28px; margin-top: 40px; font-size: 0.85rem; color: var(--text-faint); }
-.site-footer .container { display: flex; flex-direction: column; gap: 20px; }
-.footer-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 28px; }
-/* Logo on the left, then "A Versioning Standard", with the links pushed to the right */
-.footer-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
-.footer-top .footer-links { margin-left: auto; }
-.footer-bottom { padding-top: 18px; border-top: 1px solid var(--border); }
+.site-footer .footer-grid { display: grid; grid-template-columns: auto auto 1fr; column-gap: 24px; align-items: center; }
+/* The separator after the logo: a thin vertical line the full height of the two rows */
+.footer-sep { align-self: stretch; width: 1px; background: var(--border-strong); }
+.footer-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.footer-top, .footer-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 28px; }
+.footer-bottom { padding-top: 16px; border-top: 1px solid var(--border); }
 .footer-links { display: flex; flex-wrap: wrap; gap: 6px 20px; }
 .footer-links a, .footer-copy a { color: var(--text-faint); text-decoration: none; transition: color .2s; }
 .footer-links a:hover, .footer-links a:focus-visible, .footer-copy a:hover, .footer-copy a:focus-visible { color: var(--accent-text); }
@@ -310,13 +311,9 @@ h2:hover .headerlink, h3:hover .headerlink, .headerlink:focus-visible { opacity:
   font-size: 0.8rem; transition: color .2s, border-color .2s; }
 .footer-version:hover, .footer-version:focus-visible { color: var(--accent-text); border-color: var(--accent-text); }
 @media (max-width: 720px) {
-  /* Logo stays on the left; "A Versioning Standard" and the links stack beside it */
-  .footer-top { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; row-gap: 6px; align-items: center; }
-  .footer-top .footer-logo { grid-row: 1 / span 2; align-self: center; }
-  .footer-top .footer-brand-sep { display: none; }
-  .footer-top .footer-brand-text { grid-column: 2; }
-  .footer-top .footer-links { grid-column: 2; margin-left: 0; gap: 4px 14px; }
-  .footer-bottom { flex-direction: column; align-items: flex-start; }
+  .site-footer .footer-grid { column-gap: 14px; align-items: start; }
+  .footer-top, .footer-bottom { flex-direction: column; align-items: flex-start; }
+  .footer-links { gap: 4px 14px; }
 }
 
 /* Brand block "Stux.Group logo | A Versioning Standard Created & Maintained by Stux.Group" and "Created with",
