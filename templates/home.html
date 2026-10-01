@@ -1,0 +1,91 @@
+    <section class="hero">
+      <div class="container">
+        <span class="eyebrow">A versioning standard &middot; spec {{spec_version}}</span>
+        <h1>Date Versioning</h1>
+        <p class="hero-lede">Version numbers that are release dates: <code>YY.MM.DD</code>, with <code>-1</code>, <code>-2</code> and so on for further releases on the same day.</p>
+        <div class="hero-versions" aria-label="Example versions">
+          <div class="hero-version"><span class="ver">26.10.01</span><span class="cap">first release on 1 October 2026</span></div>
+          <div class="hero-version"><span class="ver">26.10.01-1</span><span class="cap">the next one that day</span></div>
+        </div>
+        <div class="actions">
+          <a class="btn btn-primary" href="#spec">Read the spec</a>
+          <a class="btn btn-ghost" href="#try">Try it</a>
+          <a class="btn btn-ghost" href="/spec.md">spec.md</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-tight" id="spec">
+      <div class="container">
+        <div class="prose narrow">
+{{lead}}
+{{summary}}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-tight" id="try" aria-labelledby="try-h">
+      <div class="container">
+        <h2 id="try-h" class="section-title">Try it</h2>
+        <p class="section-sub">Both tools run in your browser, using the specification's own regular expression and a real-calendar-date check. Nothing is sent anywhere.</p>
+        <div class="tool-grid">
+          <form class="tool-card" id="next-tool" autocomplete="off" novalidate>
+            <h3>Next version</h3>
+            <p class="tool-help">Today's UTC date as a Date Version, and the next version after your latest one (<a href="#choosing-the-next-version">Choosing the next version</a>).</p>
+            <label for="nv-latest">Latest version <span class="opt">(optional)</span></label>
+            <input id="nv-latest" class="mono" type="text" inputmode="text" spellcheck="false" placeholder="26.09.30" autocapitalize="off">
+            <label for="nv-date">Release date (UTC)</label>
+            <input id="nv-date" class="mono" type="date">
+            <div class="result" aria-live="polite">
+              <div class="result-row"><span class="result-label">Today (UTC)</span><span class="mono" id="nv-today"></span></div>
+              <div class="result-row"><span class="result-label">Next version</span><span class="mono result-big" id="nv-next"></span><button type="button" class="copy-btn" data-copy-from="nv-next">Copy</button></div>
+              <p class="result-note" id="nv-note"></p>
+            </div>
+          </form>
+
+          <form class="tool-card" id="validate-tool" autocomplete="off" novalidate>
+            <h3>Validate</h3>
+            <p class="tool-help">Checks a version against the rules, says why it is invalid, and shows its SemVer form.</p>
+            <label for="val-input">Version</label>
+            <input id="val-input" class="mono" type="text" inputmode="text" spellcheck="false" value="26.10.01-2" autocapitalize="off">
+            <div class="result" aria-live="polite">
+              <div class="result-row"><span class="result-label">Result</span><span class="status" id="val-status" data-valid=""></span></div>
+              <p class="result-note" id="val-reason"></p>
+              <div class="result-row" id="val-semver-row"><span class="result-label">SemVer form</span><span class="mono result-big" id="val-semver"></span><button type="button" class="copy-btn" data-copy-from="val-semver">Copy</button></div>
+              <p class="result-note" id="val-detail"></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-tight">
+      <div class="container">
+        <div class="doc-layout">
+          <aside class="toc" aria-label="Table of contents">
+            <p class="toc-title">On this page</p>
+{{toc}}
+          </aside>
+          <div class="prose doc-body">
+{{spec_rest}}
+
+            <h2 id="use-it">Use it in your project<a class="headerlink" href="#use-it" title="Link to this section">#</a></h2>
+            <p>Say that your project uses Date Versioning (rule 1) and link to this page. A README badge does both:</p>
+            <p class="badge-preview"><a href="https://datevers.ing" class="fake-badge" aria-label="DateVer badge preview"><span class="fb-l">DateVer</span><span class="fb-r">YY.MM.DD</span></a></p>
+            <div class="snippet">
+              <pre><code id="badge-snippet">[![DateVer](https://img.shields.io/badge/DateVer-YY.MM.DD-{{accent_hex}})](https://datevers.ing)</code></pre>
+              <button type="button" class="copy-btn" data-copy-from="badge-snippet">Copy</button>
+            </div>
+            <p>Replace <code>YY.MM.DD</code> with your current version in its canonical form (Shields writes a hyphen as <code>--</code>, so <code>26.10.01-1</code> becomes <code>26.10.01--1</code>). Keep a changelog too: a Date Version says when, and the changelog says what.</p>
+
+            <h2 id="ai">Using Date Versioning with AI tools and programs<a class="headerlink" href="#ai" title="Link to this section">#</a></h2>
+            <p>You can point any AI assistant or program at <a href="/spec.md">https://datevers.ing/spec.md</a> (or <a href="/llms.txt">/llms.txt</a>) and tell it the project uses Date Versioning. Both are plain text, so there is nothing to scrape. Paste this into your assistant's instructions, your <code>AGENTS.md</code> or <code>CLAUDE.md</code>, or a prompt:</p>
+            <div class="snippet">
+              <pre><code id="ai-snippet">This project uses Date Versioning (https://datevers.ing/spec.md): versions are the UTC release date as YY.MM.DD, with -1, -2&hellip; for further releases the same day.</code></pre>
+              <button type="button" class="copy-btn" data-copy-from="ai-snippet">Copy</button>
+            </div>
+            <p>For programs there is a small descriptor with the regular expressions, the time zone and the SemVer-form rules: <a href="/datever.json">/datever.json</a>. The specification also has a permanent page and Markdown file for each version, for example <a href="/spec/{{spec_version}}/">/spec/{{spec_version}}/</a> and <a href="/spec/{{spec_version}}.md">/spec/{{spec_version}}.md</a>.</p>
+          </div>
+        </div>
+      </div>
+    </section>

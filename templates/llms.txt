@@ -1,0 +1,25 @@
+# Date Versioning (DateVer)
+
+> A versioning standard in which a version number is the date it was released: YY.MM.DD, with -1, -2 and so on for further releases on the same day. Created and maintained by Stux.Group. Current specification: {{spec_version}}.
+
+The essentials (the specification is the source of truth):
+
+- Format: YY.MM.DD, each part two digits and zero-padded, a real calendar date. Example: {{spec_version}}.
+- The date is the UTC date of the release.
+- Further releases on the same UTC date append -N, counting from 1 with no gaps: {{spec_version}}-1, {{spec_version}}-2. Never -0.
+- Precedence: compare YY, MM, DD, then N numerically (no suffix means N = 0), so 26.10.01 < 26.10.01-1 < 26.10.02. Later versions always rank higher.
+- Never compare a Date Version with SemVer rules: in SemVer 26.10.1-1 ranks before 26.10.1, but in DateVer 26.10.01-1 ranks after 26.10.01.
+- SemVer form, for registries that only accept SemVer: MAJOR = YY without leading zeros, MINOR = MM without leading zeros, PATCH = DD x 100 + N. Example: 26.10.01-2 becomes 26.10.102, 05.03.09-4 becomes 5.3.904.
+- Optional build metadata after a plus sign (+build.7) is ignored for precedence. A leading v is only for tag names (v26.10.01).
+
+## Specification
+
+- [Date Versioning specification (Markdown, latest)]({{base}}/spec.md): the full specification as plain text
+- [Date Versioning {{spec_version}} (Markdown, permanent)]({{base}}/spec/{{spec_version}}.md): this version of the specification, permanently
+- [Date Versioning {{spec_version}} (web page)]({{base}}/spec/{{spec_version}}/): the same, rendered
+
+## Optional
+
+- [Machine-readable descriptor]({{base}}/datever.json): regular expressions, time zone and SemVer-form rules as JSON
+- [Website]({{base}}/): the specification with a version validator and a next-version tool
+- [Source and issue tracker](https://github.com/StuxGroup/DateVersioning)

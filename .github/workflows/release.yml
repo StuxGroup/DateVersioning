@@ -1,0 +1,54 @@
+name: Release
+
+# Publishes a GitHub Release whenever commit.sh's vYY.MM.DD tag is pushed, with
+# the notes taken from the matching CHANGELOG.md section.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the tag matches VERSION.md
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          V="$(tr -d '[:space:]' < VERSION.md)"
+          if [ "$TAG" != "v$V" ]; then
+            echo "::error::Tag $TAG does not match VERSION.md ($V)"
+            exit 1
+          fi
+
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          awk -v v="${TAG#v}" '
+            /^## / {
+              if (found) exit
+              h = $0; sub(/^## \[?v?/, "", h); split(h, a, /[^0-9A-Za-z.+-]/)
+              if (a[1] == v) { found = 1; next }
+            }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "See CHANGELOG.md for details." > release-notes.md
+          fi
+          cat release-notes.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" --title "$TAG" --notes-file release-notes.md --verify-tag

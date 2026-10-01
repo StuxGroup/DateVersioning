@@ -1,0 +1,254 @@
+# Date Versioning 26.10.01
+
+**Date Versioning** (DateVer) is a versioning standard in which a version number is the date it was
+released: `YY.MM.DD`, with `-1`, `-2` and so on for further releases made on the same day.
+
+The canonical home of this specification is **https://datevers.ing**. The plain-text version is at
+https://datevers.ing/spec.md.
+
+## Summary
+
+Given a release, its version is:
+
+1. `YY.MM.DD`, the UTC date of the release, with every part two digits (`26.10.01`), or
+2. `YY.MM.DD-N` when it is not the first release on that date, where `N` counts the extra releases
+   that day, starting at 1 (`26.10.01-1`, `26.10.01-2`, …).
+
+Later versions always have greater precedence: dates compare in order, and on the same date
+`26.10.01` < `26.10.01-1` < `26.10.01-2`.
+
+## Introduction
+
+A version number usually answers "what changed?". A Date Version answers "when was this
+released?", and does so in a form that people, programs and AI tools can read, write, validate and
+sort without guesswork. Date Versioning suits projects that release continuously, ship on their own
+schedule, or find that choosing between "major", "minor" and "patch" adds little.
+
+Date Versioning looks like [Semantic Versioning](https://semver.org) (three numbers separated by
+dots, an optional suffix after a hyphen and optional build metadata after a plus sign), and it
+borrows SemVer's structure and wording. It is **not** SemVer: the parts mean something different,
+they are zero-padded, and the `-N` suffix ranks *after* the version it follows, not before.
+[Compatibility with Semantic Versioning](#compatibility-with-semantic-versioning) explains how the
+two fit together.
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT",
+"RECOMMENDED", "MAY" and "OPTIONAL" in this document are to be interpreted as described in
+[RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
+
+## Date Versioning Specification (DateVer)
+
+1. Software using Date Versioning MUST declare that it does, for example in its README or
+   documentation, and SHOULD link to https://datevers.ing.
+
+2. A normal version number MUST take the form `YY.MM.DD`, where:
+   - `YY` is the year minus 2000, from `00` to `99` (`26` is 2026),
+   - `MM` is the month, from `01` to `12`,
+   - `DD` is the day of the month, from `01` to `31`.
+
+   Each part MUST be exactly two decimal digits, zero-padded (`26.10.01`, never `26.10.1`).
+   `YY.MM.DD` MUST be a real calendar date (`26.02.29` is not valid, because 2026 is not a leap
+   year).
+
+3. The date in a version MUST be the date, in **Coordinated Universal Time (UTC)**, on which that
+   version is released. A version MUST NOT carry a date in the future, and SHOULD NOT carry a date
+   earlier than the day it is released.
+
+4. Once a version has been released, its contents MUST NOT be modified. Any change MUST be released
+   as a new version.
+
+5. The first version released on a given UTC date MUST be `YY.MM.DD`, with no suffix.
+
+6. Each further version released on the same UTC date MUST append a hyphen and a **release
+   number** `N`: `YY.MM.DD-N`. `N` MUST be a decimal integer starting at `1` for the second release
+   of the day and increasing by exactly 1 for each further release that day (`-1`, `-2`, `-3`, …).
+   `N` MUST NOT be `0`, MUST NOT have leading zeros and MUST NOT skip values.
+
+7. Each new version MUST have greater precedence than every version released before it. A project
+   MUST NOT release a version dated earlier than its latest version.
+
+8. Build metadata MAY be added by appending a plus sign and a series of dot-separated identifiers
+   immediately after the version: `26.10.01+build.7`, `26.10.01-2+sha.5114f85`. Identifiers MUST
+   consist only of ASCII letters, digits and hyphens `[0-9A-Za-z-]` and MUST NOT be empty. Build
+   metadata MUST be ignored when determining precedence, so two versions that differ only in build
+   metadata have the same precedence.
+
+9. Precedence is how versions are ordered. It MUST be calculated by comparing, in order:
+   1. `YY` numerically,
+   2. `MM` numerically,
+   3. `DD` numerically,
+   4. the release number numerically, where a version with no `-N` has release number `0`.
+
+   The first difference decides. Example:
+   `25.12.31` < `26.01.01` < `26.01.01-1` < `26.01.01-2` < `26.01.02` < `26.10.01`.
+
+   Because every part is two digits, comparing the `YY.MM.DD` parts of two versions as plain text
+   gives the same result as comparing them numerically. The release number MUST be compared
+   numerically (`-10` is greater than `-9`).
+
+10. Date Versioning does not signal compatibility: a version says when a release happened, not what
+    it changed. Breaking changes, deprecations and other notable changes MUST be described in the
+    project's changelog or release notes for the version that introduces them.
+
+11. A version MUST NOT include a prefix. In tags and other places where a prefix is customary, a
+    `v` MAY be written in front of it (`v26.10.01`); `v26.10.01` is a tag name, and its version is
+    `26.10.01`.
+
+12. This version of the specification covers the years 2000 to 2099. Projects MUST NOT reuse a
+    version number, so a project still using Date Versioning in 2100 MUST change its scheme rather
+    than wrap around to `00`.
+
+## Compatibility with Semantic Versioning
+
+A Date Version has the same shape as a Semantic Version, but two rules differ:
+
+- **Zero padding.** SemVer forbids leading zeros, so strict SemVer parsers reject `26.10.01`.
+- **The `-N` suffix.** In SemVer, `26.10.1-1` is a pre-release that ranks *before* `26.10.1`. In
+  DateVer, `26.10.01-1` ranks *after* `26.10.01`.
+
+So a Date Version MUST NOT be compared using SemVer rules, and where a registry or tool only accepts
+SemVer (npm, Cargo, Composer and others), the version MUST be written in its **SemVer form**:
+
+| DateVer part | SemVer form | Rule |
+| --- | --- | --- |
+| `YY` | MAJOR | `YY` without leading zeros (`26` → `26`, `05` → `5`) |
+| `MM` | MINOR | `MM` without leading zeros (`10` → `10`, `01` → `1`) |
+| `DD` and `-N` | PATCH | `DD × 100 + N`, where `N` is `0` when there is no suffix |
+
+| Date Version | SemVer form |
+| --- | --- |
+| `26.10.01` | `26.10.100` |
+| `26.10.01-1` | `26.10.101` |
+| `26.10.01-2` | `26.10.102` |
+| `26.10.31` | `26.10.3100` |
+| `05.03.09-4` | `5.3.904` |
+
+The SemVer form sorts correctly under SemVer rules, and it converts back exactly: `DD` is
+`PATCH ÷ 100` rounded down and `N` is `PATCH mod 100`. Build metadata is carried over unchanged.
+A project that publishes SemVer forms MUST NOT release more than 99 versions after the first on one
+date (`-99` is the highest release number with a SemVer form).
+
+A project MUST use one form per place it publishes, and SHOULD use the canonical `YY.MM.DD` form
+everywhere SemVer is not required (its changelog, tags, release titles and user interface).
+
+## Validating a Date Version
+
+This regular expression (ECMAScript and PCRE compatible) checks the format. A valid match must
+still be checked to be a real calendar date (rule 2).
+
+```regex
+^(?<year>[0-9]{2})\.(?<month>0[1-9]|1[0-2])\.(?<day>0[1-9]|[12][0-9]|3[01])(?:-(?<release>[1-9][0-9]*))?(?:\+(?<build>[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
+```
+
+Without named groups:
+
+```regex
+^([0-9]{2})\.(0[1-9]|1[0-2])\.(0[1-9]|[12][0-9]|3[01])(?:-([1-9][0-9]*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$
+```
+
+## Choosing the next version
+
+To pick the version for a new release:
+
+1. Take today's date in UTC as `YY.MM.DD`.
+2. If the project has no version on that date yet, the version is `YY.MM.DD`.
+3. Otherwise, find the highest release number already used on that date (`0` if only `YY.MM.DD`
+   exists) and add 1: `YY.MM.DD-N`.
+
+For example, with latest version `26.09.30`, a release on 1 October 2026 (UTC) is `26.10.01`, the
+next one that day is `26.10.01-1`, and the first release on 2 October is `26.10.02`.
+
+## FAQ
+
+### Why version by date?
+
+When a project ships often, or its releases don't divide neatly into major, minor and patch
+changes, the most useful thing a version can tell you is when it was released. A Date Version tells
+you at a glance how old a release is, sorts correctly, and leaves nothing to decide at release
+time.
+
+### When should I use Semantic Versioning instead?
+
+Use SemVer when other software depends on yours and needs the version to promise compatibility, as
+libraries usually do. Date Versioning deliberately makes no such promise (rule 10).
+
+### How do I signal a breaking change?
+
+In the changelog or release notes for that version. A Date Version only says when; what changed
+belongs in the changelog. Keeping a changelog is strongly RECOMMENDED for every project that uses
+Date Versioning.
+
+### Is `26.10.01-1` a pre-release?
+
+No. In Date Versioning, `-N` is the release number: `26.10.01-1` is the second release on
+1 October 2026, and it ranks above `26.10.01`. This is the main difference from SemVer, which is
+why Date Versions must not be compared using SemVer rules.
+
+### How do I publish a pre-release or beta?
+
+Date Versioning has no pre-release syntax, because every Date Version is a release. Publish
+previews on a separate channel (a beta branch, a "next" tag on your registry, a test track), and
+label preview builds with build metadata if you need to (`26.10.01+beta.1`), remembering that build
+metadata does not affect precedence.
+
+### Why UTC?
+
+So that the same moment has the same date for everyone. Without it, a team spread across time zones
+could disagree about a release's date, or produce a version that sorts before the one released
+minutes earlier.
+
+### I released at 00:30 my time, but the version shows yesterday's date. Is that right?
+
+Yes, if UTC was still on the previous day. The date is always the UTC date (rule 3).
+
+### Why are the parts zero-padded?
+
+So that every Date Version reads unambiguously as a date, has the same length, and sorts correctly
+as plain text. Use the SemVer form where a tool insists on unpadded numbers.
+
+### My package manager requires SemVer. What do I do?
+
+Publish the SemVer form (`26.10.01-2` → `26.10.102`) there, and use the canonical form everywhere
+else. See [Compatibility with Semantic Versioning](#compatibility-with-semantic-versioning).
+
+### Should I write `v26.10.01`?
+
+Not as the version. A `v` is fine in tag names (`v26.10.01`), as it is with SemVer (rule 11).
+
+### Can I skip release numbers, or start at `-0`?
+
+No. The second release of the day is `-1`, then `-2`, and so on, with no gaps (rule 6). That way
+the release number always tells you how many releases came before it that day.
+
+### I released a version with the wrong date. What now?
+
+Leave it: a released version must never change (rule 4). Release the fix as a new version with the
+correct date. If the wrong date was in the future, the next releases must still rank above it
+(rule 7), so add release numbers on that date until real time catches up.
+
+### How do I switch an existing project to Date Versioning?
+
+Release your next version with today's date. Under SemVer ordering `26.10.01` (SemVer form
+`26.10.100`) ranks above any version with a major number below 26, so the switch keeps working with
+existing tooling for almost every project. Say in your changelog that the project now uses Date
+Versioning.
+
+### What happens in 2100?
+
+This version of the specification ends at `99.12.31` (rule 12). A future version of Date Versioning
+will define what comes next, well before it matters.
+
+### How is this specification versioned?
+
+With Date Versioning. This is Date Versioning `26.10.01`.
+
+## About
+
+Date Versioning is a versioning standard created and maintained by
+[Stux.Group](https://stux.group). Its source, history and issue tracker are at
+https://github.com/StuxGroup/DateVersioning.
+
+## License
+
+Copyright © 2026 Stux.Group. This specification is licensed under
+[Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+You may share and adapt it, including commercially, as long as you give appropriate credit.

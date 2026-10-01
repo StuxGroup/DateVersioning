@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Date Versioning">
+  <rect x="6" y="10" width="52" height="48" rx="9" fill="#0f9f8f"/>
+  <path d="M6 24h52v-5a9 9 0 0 0-9-9H15a9 9 0 0 0-9 9z" fill="#0b7a6d"/>
+  <rect x="18" y="3" width="6" height="14" rx="3" fill="#0f9f8f" stroke="#ffffff" stroke-width="2.5"/>
+  <rect x="40" y="3" width="6" height="14" rx="3" fill="#0f9f8f" stroke="#ffffff" stroke-width="2.5"/>
+  <g fill="#ffffff">
+    <rect x="14" y="31" width="8" height="7" rx="1.6"/>
+    <rect x="28" y="31" width="8" height="7" rx="1.6"/>
+    <rect x="42" y="31" width="8" height="7" rx="1.6" opacity=".55"/>
+    <rect x="14" y="44" width="8" height="7" rx="1.6"/>
+    <rect x="28" y="44" width="8" height="7" rx="1.6" opacity=".55"/>
+  </g>
+  <path d="M43 47.5l3.2 3.2 5.8-6.4" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

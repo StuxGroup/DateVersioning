@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    name: Build and site checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Key files exist
+        run: |
+          set -euo pipefail
+          for f in SPEC.md README.md CHANGELOG.md VERSION.md CONTRIBUTING.md LICENSE.md CNAME requirements.txt commit.sh commit.bat dev-server.sh dev-server.bat scripts/build.py scripts/dev-server.py templates/base.html templates/home.html assets/css/style.css assets/js/main.js assets/js/datever.js assets/js/dev-mode.js assets/img/icon.svg; do
+            if [ ! -f "$f" ]; then echo "::error::Missing $f"; exit 1; fi
+          done
+      - name: Build
+        run: |
+          set -euo pipefail
+          pip install -r requirements.txt
+          python scripts/build.py
+      - name: Built site has every page, and /spec.md is SPEC.md
+        run: |
+          set -euo pipefail
+          V="$(tr -d '[:space:]' < VERSION.md)"
+          for f in index.html 404.html CNAME robots.txt sitemap.xml sitemap/index.html llms.txt datever.json spec.md "spec/$V.md" "spec/$V/index.html" changelogs/index.html changelog/index.html legal/index.html legal/privacy/index.html legal/terms/index.html legal/cookies/index.html legal/imprint/index.html legal/disclaimer/index.html legal/opt-out/index.html; do
+            if [ ! -f "_site/$f" ]; then echo "::error::Build is missing $f"; exit 1; fi
+          done
+          cmp SPEC.md _site/spec.md
+          cmp SPEC.md "_site/spec/$V.md"
+          python3 -c "import json; json.load(open('_site/datever.json'))"
+      - name: Local links in the built site resolve
+        run: |
+          python3 - <<'PY'
+          import html.parser, os, sys, urllib.parse
+          bad = []
+          class P(html.parser.HTMLParser):
+              def __init__(s, f):
+                  super().__init__(); s.f = f
+              def handle_starttag(s, tag, attrs):
+                  for k, v in attrs:
+                      if k not in ("href", "src") or not v:
+                          continue
+                      u = urllib.parse.urlparse(v)
+                      if u.scheme or v.startswith(("//", "#", "mailto:", "tel:", "data:", "javascript:")):
+                          continue
+                      path = urllib.parse.unquote(u.path)
+                      if not path:
+                          continue
+                      base = "_site" if path.startswith("/") else os.path.dirname(s.f)
+                      t = os.path.normpath(os.path.join(base, path.lstrip("/")))
+                      if not (os.path.isfile(t) or os.path.isfile(os.path.join(t, "index.html"))):
+                          bad.append(f"{s.f}: broken local link {v}")
+          files = []
+          for root, dirs, fs in os.walk("_site"):
+              files += [os.path.join(root, f) for f in fs if f.endswith(".html")]
+          for f in files:
+              P(f).feed(open(f, encoding="utf-8").read())
+          print(f"Checked {len(files)} HTML file(s)")
+          if bad:
+              print("\n".join(bad)); sys.exit(1)
+          PY
+      - name: Workflow YAML is valid
+        run: |
+          set -euo pipefail
+          for f in .github/workflows/*.yml; do yq e 'true' "$f" > /dev/null && echo "ok $f"; done
+
+  version:
+    name: Version consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: VERSION.md is a Date Version with a matching CHANGELOG.md heading
+        run: |
+          set -euo pipefail
+          if [ ! -f VERSION.md ]; then echo "::error::VERSION.md is missing"; exit 1; fi
+          V="$(tr -d '[:space:]' < VERSION.md)"
+          if ! printf '%s' "$V" | grep -Eq '^[0-9]{2}\.(0[1-9]|1[0-2])\.(0[1-9]|[12][0-9]|3[01])(-[1-9][0-9]*)?$'; then
+            echo "::error::VERSION.md is not a Date Version (YY.MM.DD[-N]): $V"; exit 1
+          fi
+          if ! grep -Eq "^## v${V//./\.}([[:space:]]|$)" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## v$V' heading"; exit 1
+          fi
+          echo "VERSION.md ($V) has a matching CHANGELOG.md entry"
+      - name: SPEC.md's first heading carries a Date Version
+        run: |
+          set -euo pipefail
+          head -n1 SPEC.md | grep -Eq '^# .+ [0-9]{2}\.[0-9]{2}\.[0-9]{2}(-[1-9][0-9]*)?$' || { echo "::error::SPEC.md's first heading must end in a Date Version"; exit 1; }
