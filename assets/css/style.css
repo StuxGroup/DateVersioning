@@ -293,19 +293,29 @@ h2:hover .headerlink, h3:hover .headerlink, .headerlink:focus-visible { opacity:
 .cl-list strong { color: var(--text); }
 .cl-msg { color: var(--text-muted); }
 
-/* Footer */
-.site-footer { border-top: 1px solid var(--border); padding: 36px 0; margin-top: 40px; }
-.site-footer .container { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center; justify-content: space-between; font-size: 0.85rem; color: var(--text-faint); }
-.footer-links { display: flex; gap: 8px 20px; flex-wrap: wrap; }
-.footer-links a, .footer-copy a { color: var(--text-faint); text-decoration: none; }
-.footer-links a:hover, .footer-copy a:hover { color: var(--accent-text); }
+/* Footer: brand line and links on top; copyright, "Created with" and the version below a divider */
+.site-footer { border-top: 1px solid var(--border); padding: 32px 0 28px; margin-top: 40px; font-size: 0.85rem; color: var(--text-faint); }
+.site-footer .container { display: flex; flex-direction: column; gap: 20px; }
+.footer-top, .footer-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 28px; }
+.footer-bottom { padding-top: 18px; border-top: 1px solid var(--border); }
+.footer-links { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.footer-links a, .footer-copy a { color: var(--text-faint); text-decoration: none; transition: color .2s; }
+.footer-links a:hover, .footer-links a:focus-visible, .footer-copy a:hover, .footer-copy a:focus-visible { color: var(--accent-text); }
+.footer-dot { margin: 0 4px; opacity: .6; }
 [data-site-version] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.footer-version { padding: 3px 10px; border: 1px solid var(--border); border-radius: 999px; color: var(--text-muted); text-decoration: none;
+  font-size: 0.8rem; transition: color .2s, border-color .2s; }
+.footer-version:hover, .footer-version:focus-visible { color: var(--accent-text); border-color: var(--accent-text); }
+@media (max-width: 720px) {
+  .footer-top, .footer-bottom { flex-direction: column; align-items: flex-start; }
+  .site-footer .footer-brand { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .site-footer .footer-brand-sep { display: none; }
+}
 
 /* Brand block "Stux.Group logo | A Versioning Standard Created & Maintained by Stux.Group" and "Created with",
    muted until hovered. The logo keeps the same filter functions in every state, so the hover animates
    smoothly (switching the filter off drops the image's layer and snaps). */
-.footer-brand { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-.footer-brand-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.footer-brand { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .footer-brand-logo { display: block; height: 28px; width: auto; filter: grayscale(1) brightness(1); opacity: .7;
   transition: filter .2s ease, opacity .2s ease; will-change: filter, opacity; backface-visibility: hidden; transform: translateZ(0); }
 .footer-brand a:hover .footer-brand-logo, .footer-brand a:focus-visible .footer-brand-logo { filter: grayscale(0) brightness(1); opacity: 1; }

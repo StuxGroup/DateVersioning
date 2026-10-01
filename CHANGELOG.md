@@ -4,6 +4,13 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.10.01-4
+
+### Changed
+
+- The footer is laid out in two rows: the Stux.Group logo with "A Versioning Standard" and the links on top, then the copyright and licence, "Created with … by Stux.Group" and the version (a link to the changelogs) below a divider. On phones each row stacks, without the stray divider
+- The brand line reads just "A Versioning Standard", since "Created with … by Stux.Group" already credits Stux.Group
+
 ## v26.10.01-3
 
 ### Added
