@@ -10,7 +10,9 @@
   var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   function pad(n) { return (n < 10 ? "0" : "") + n; }
-  function daysIn(year, month) { return new Date(Date.UTC(year, month, 0)).getUTCDate(); }
+  // Gregorian calendar, for any year (Date only goes up to the year 275760).
+  function isLeap(y) { return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; }
+  function daysIn(year, month) { return month === 2 ? (isLeap(year) ? 29 : 28) : [31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1]; }
   function $(id) { return document.getElementById(id); }
 
   // Today's UTC date as {y, m, d} (y is the full year).
@@ -18,7 +20,9 @@
     var n = new Date();
     return { y: n.getUTCFullYear(), m: n.getUTCMonth() + 1, d: n.getUTCDate() };
   }
-  function fmtDate(dt) { return pad(dt.y % 100) + "." + pad(dt.m) + "." + pad(dt.d); }
+  // YY up to 2099, the full year from 2100 (rule 12).
+  function fmtYear(y) { return y <= 2099 ? pad(y - 2000) : String(y); }
+  function fmtDate(dt) { return fmtYear(dt.y) + "." + pad(dt.m) + "." + pad(dt.d); }
   function dateKey(dt) { return dt.y * 10000 + dt.m * 100 + dt.d; }
   function longDate(dt) { return dt.d + " " + MONTHS[dt.m - 1] + " " + dt.y; }
 
@@ -34,8 +38,14 @@
       if (/^\d+\.\d+\.\d+\+/.test(s)) return "Build metadata must be dot-separated identifiers of ASCII letters, digits and hyphens, none empty (rule 8).";
       return "Not in the form YY.MM.DD, YY.MM.DD-N or either with +build (rules 2, 5, 6 and 8).";
     }
-    if (m[1].length !== 2 || m[2].length !== 2 || m[3].length !== 2) {
-      return "Each of YY, MM and DD must be exactly two digits, zero-padded (26.10.01, never 26.10.1) (rule 2).";
+    if (m[1].length === 4 && +m[1] >= 2000 && +m[1] <= 2099) {
+      return "The years 2000 to 2099 are written as YY, not in full: " + m[1].slice(2) + "." + m[2] + "." + m[3] + ", not " + m[1] + "." + m[2] + "." + m[3] + " (rule 12).";
+    }
+    if (m[1].length >= 4 && /^0/.test(m[1])) return "A full year has no leading zeros (rule 12).";
+    if (m[1].length >= 4 && +m[1] < 2000) return "Date Versions start in the year 2000 (rule 2).";
+    if (m[1].length !== 2 && m[1].length < 4) return "The year is YY (two digits, up to 2099) or the full year (from 2100) (rules 2 and 12).";
+    if (m[2].length !== 2 || m[3].length !== 2) {
+      return "MM and DD must be exactly two digits, zero-padded (26.10.01, never 26.10.1) (rule 2).";
     }
     if (+m[2] < 1 || +m[2] > 12) return "The month MM must be from 01 to 12 (rule 2).";
     if (+m[3] < 1 || +m[3] > 31) return "The day DD must be from 01 to 31 (rule 2).";
@@ -52,10 +62,11 @@
     var s = raw.trim();
     var m = RE.exec(s);
     if (!m) return { ok: false, reason: whyNot(s) };
-    var y = 2000 + parseInt(m[1], 10), mo = parseInt(m[2], 10), d = parseInt(m[3], 10);
+    // YY is the year 20YY; a full year (from 2100) is the year itself (rules 2 and 12).
+    var y = m[1].length === 2 ? 2000 + parseInt(m[1], 10) : parseInt(m[1], 10), mo = parseInt(m[2], 10), d = parseInt(m[3], 10);
     var dim = daysIn(y, mo);
     if (d > dim) {
-      return { ok: false, reason: pad(y % 100) + "." + pad(mo) + "." + pad(d) + " is not a real calendar date: " + MONTHS[mo - 1] + " " + y + " has only " + dim + " days (rule 2)." };
+      return { ok: false, reason: fmtYear(y) + "." + pad(mo) + "." + pad(d) + " is not a real calendar date: " + MONTHS[mo - 1] + " " + y + " has only " + dim + " days (rule 2)." };
     }
     return { ok: true, y: y, m: mo, d: d, n: m[4] === undefined ? 0 : parseInt(m[4], 10), build: m[5] || "", releaseText: m[4] };
   }
@@ -65,7 +76,7 @@
   // SemVer form (spec: Compatibility with Semantic Versioning). null when N > 99.
   function semver(v) {
     if (v.n > 99) return null;
-    return (v.y % 100) + "." + v.m + "." + (v.d * 100 + v.n) + (v.build ? "+" + v.build : "");
+    return (v.y - 2000) + "." + v.m + "." + (v.d * 100 + v.n) + (v.build ? "+" + v.build : "");
   }
 
   // ---- Next version ----
@@ -81,9 +92,9 @@
     var today = todayUTC();
     nvToday.textContent = fmtDate(today);
     var when = pickedDate() || today;
-    if (when.y < 2000 || when.y > 2099) {
+    if (when.y < 2000) {
       nvNext.textContent = "—";
-      nvNote.textContent = "This version of the specification covers the years 2000 to 2099 (rule 12).";
+      nvNote.textContent = "Date Versions start in the year 2000 (rule 2).";
       return;
     }
     var raw = nvLatest.value.trim();

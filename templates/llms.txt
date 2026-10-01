@@ -4,12 +4,13 @@
 
 The essentials (the specification is the source of truth):
 
-- Format: YY.MM.DD, each part two digits and zero-padded, a real calendar date. Example: 26.10.01.
+- Format: YY.MM.DD, each part two digits and zero-padded, a real Gregorian calendar date. Example: 26.10.01.
+- From the year 2100 the year is written in full, with no leading zeros: 2100.01.01, and 10000.01.01 in the year 10000. Never write 2000-2099 in full (26.10.01, not 2026.10.01). There is no end date.
 - The date is the UTC date of the release.
 - Further releases on the same UTC date append -N, counting from 1 with no gaps: 26.10.01-1, 26.10.01-2. Never -0.
-- Precedence: compare YY, MM, DD, then N numerically (no suffix means N = 0), so 26.10.01 < 26.10.01-1 < 26.10.02. Later versions always rank higher.
+- Precedence: compare the year (YY means 20YY), MM, DD, then N, all numerically (no suffix means N = 0), so 26.10.01 < 26.10.01-1 < 26.10.02 and 99.12.31 < 2100.01.01. Later versions always rank higher.
 - Never compare a Date Version with SemVer rules: in SemVer 26.10.1-1 ranks before 26.10.1, but in DateVer 26.10.01-1 ranks after 26.10.01.
-- SemVer form, for registries that only accept SemVer: MAJOR = YY without leading zeros, MINOR = MM without leading zeros, PATCH = DD x 100 + N. Example: 26.10.01-2 becomes 26.10.102, 05.03.09-4 becomes 5.3.904. A project whose old SemVer versions would outrank that form (major already 26 or more) adds a fixed major offset, the smallest multiple of 100 that fixes it: 26.10.01 becomes 126.10.100.
+- SemVer form, for registries that only accept SemVer: MAJOR = the year minus 2000 (YY without leading zeros; 2100 gives 100), MINOR = MM without leading zeros, PATCH = DD x 100 + N. Example: 26.10.01-2 becomes 26.10.102, 05.03.09-4 becomes 5.3.904. A project whose old SemVer versions would outrank that form (major already 26 or more) adds a fixed major offset, the smallest multiple of 100 that fixes it: 26.10.01 becomes 126.10.100.
 - Switching from another scheme: say so in the first Date Version's changelog entry; every Date Version ranks above every version from before the switch.
 - Optional build metadata after a plus sign (+build.7) is ignored for precedence. A leading v is only for tag names (v26.10.01).
 

@@ -4,6 +4,19 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.10.01-7
+
+### Added
+
+- Specification 26.10.01-2: Date Versioning works forever. The years 2000 to 2099 are written `YY` as before; from 2100, when two digits can no longer tell the century, the year is written in full with as many digits as it needs (`2100.01.01`, `10000.01.01`). The full year is never used before 2100, so each release date has exactly one Date Version (rule 12, replacing the 2099 end date)
+- The previous specification is kept at /spec/26.10.01-1/, in every format
+
+### Changed
+
+- Precedence compares the year as a number (`YY` is `20YY`), so `99.12.31` < `2100.01.01` (rule 9); dates must be real Gregorian dates (rule 2)
+- The SemVer form's MAJOR is the year minus 2000 (still `YY` up to 2099; `2100.01.01` becomes `100.1.100`), and converts back with `year = 2000 + MAJOR − offset`
+- The regular expressions accept the full year from 2100; the validator, the next-version tool, `datever.json` and `llms.txt` follow the new rules
+
 ## v26.10.01-6
 
 ### Changed

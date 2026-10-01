@@ -35,7 +35,7 @@ jobs:
         run: |
           set -euo pipefail
           # The specification's version (from SPEC.md's heading), which can differ from the site's VERSION.md.
-          V="$(head -n 1 SPEC.md | grep -oE '[0-9]{2}\.[0-9]{2}\.[0-9]{2}(-[1-9][0-9]*)?$')"
+          V="$(head -n 1 SPEC.md | grep -oE '([0-9]{2}|[1-9][0-9]{3,})\.[0-9]{2}\.[0-9]{2}(-[1-9][0-9]*)?$')"
           for f in index.html 404.html CNAME robots.txt sitemap.xml sitemap/index.html llms.txt datever.json "spec/$V/index.html" spec/latest/index.html changelogs/index.html changelog/index.html legal/index.html legal/privacy/index.html legal/terms/index.html legal/cookies/index.html legal/imprint/index.html legal/disclaimer/index.html legal/opt-out/index.html; do
             if [ ! -f "_site/$f" ]; then echo "::error::Build is missing $f"; exit 1; fi
           done

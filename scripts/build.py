@@ -83,7 +83,7 @@ def git_date(*sources: str) -> str:
 def spec_info(spec: str) -> tuple[str, str]:
     """(title, version) from SPEC.md's first heading, e.g. ('Date Versioning', '26.10.01')."""
     first = next((ln for ln in spec.splitlines() if ln.startswith("# ")), "")
-    m = re.match(r"#\s+(.*?)\s+(\d{2}\.\d{2}\.\d{2}(?:-[1-9][0-9]*)?)\s*$", first)
+    m = re.match(r"#\s+(.*?)\s+((?:\d{2}|[1-9]\d{3,})\.\d{2}\.\d{2}(?:-[1-9][0-9]*)?)\s*$", first)
     if not m:
         sys.exit("SPEC.md's first heading must be '# <name> YY.MM.DD'.")
     return m.group(1), m.group(2)
@@ -306,22 +306,23 @@ class Site:
             "repository": "https://github.com/StuxGroup/DateVersioning",
             "maintainer": {"name": "Stux.Group", "url": "https://stux.group"},
             "license": {"spec": "CC-BY-4.0", "url": "https://creativecommons.org/licenses/by/4.0/"},
-            "format": "YY.MM.DD[-N][+build]",
+            "format": "YY.MM.DD[-N][+build] for 2000-2099; YYYY.MM.DD[-N][+build] (the full year) from 2100",
             "regex": {"named_groups": self.regex_named, "plain": self.regex_plain, "dialect": "ECMAScript and PCRE"},
             "timezone": "UTC",
             "calendar_check_required": True,
             "precedence": ["YY", "MM", "DD", "N (no -N means 0)"],
             "build_metadata_affects_precedence": False,
-            "years_covered": [2000, 2099],
+            "years": {"from": 2000, "until": None, "short_form": "YY for 2000-2099", "full_form": "the full year, no leading zeros, from 2100 (2100.01.01, 10000.01.01)", "full_form_before_2100_allowed": False},
+            "calendar": "Gregorian",
             "semver_form": {
-                "major": "YY without leading zeros, plus the project's major offset (rule 13; 0 unless declared)",
+                "major": "the year minus 2000 (YY without leading zeros up to 2099; 2100 -> 100), plus the project's major offset (rule 13; 0 unless declared)",
                 "major_offset": "a multiple of 100, chosen once when a project switches from a scheme whose versions would otherwise outrank its SemVer forms; never changes",
                 "minor": "MM without leading zeros",
                 "patch": "DD * 100 + N (N is 0 when there is no -N suffix)",
                 "build_metadata": "carried over unchanged",
                 "max_release_number": 99,
-                "reverse": {"YY": "MAJOR mod 100", "DD": "floor(PATCH / 100)", "N": "PATCH mod 100"},
-                "examples": {"26.10.01": "26.10.100", "26.10.01-2": "26.10.102", "05.03.09-4": "5.3.904", "26.10.01 (major offset 100)": "126.10.100"},
+                "reverse": {"year": "2000 + MAJOR - offset (written as YY up to 2099, in full from 2100)", "DD": "floor(PATCH / 100)", "N": "PATCH mod 100"},
+                "examples": {"26.10.01": "26.10.100", "26.10.01-2": "26.10.102", "05.03.09-4": "5.3.904", "26.10.01 (major offset 100)": "126.10.100", "2100.01.01": "100.1.100", "2345.06.07-1": "345.6.701"},
                 "compare_date_versions_with_semver_rules": False,
             },
         }
