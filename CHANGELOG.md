@@ -4,6 +4,17 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.10.01-3
+
+### Added
+
+- Every specification in every format: change the extension of `/spec`, `/spec/latest` or `/spec/<version>` to `.md`, `.txt` (plain text, wrapped at 80 columns), `.json` or `.xml` (the metadata, the numbered rules and every section as text and Markdown) or `.html`, for example `/spec/26.10.01.txt` or `/spec/latest.json`
+- The formats are listed on each specification page, in `llms.txt` and in `datever.json`
+
+### Fixed
+
+- CI read the specification's version from `VERSION.md`, so it failed as soon as the site and the specification had different versions; it now reads it from `SPEC.md`, and checks every format of every specification
+
 ## v26.10.01-2
 
 ### Added

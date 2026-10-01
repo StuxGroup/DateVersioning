@@ -17,6 +17,7 @@ The essentials (the specification is the source of truth):
 
 - [Date Versioning specification (Markdown, latest)]({{base}}/spec/latest.md): the full, current specification as plain text (also at {{base}}/spec.md)
 - [Date Versioning specification (web page, latest)]({{base}}/spec/latest/): always the current specification, rendered
+- Every specification URL also works with .txt (plain text), .json and .xml (structured: metadata, the numbered rules and every section) and .html: for example {{base}}/spec/latest.txt, {{base}}/spec/latest.json, {{base}}/spec/{{spec_version}}.xml
 - [Date Versioning {{spec_version}} (Markdown, permanent)]({{base}}/spec/{{spec_version}}.md): this version of the specification, permanently
 - [Date Versioning {{spec_version}} (web page)]({{base}}/spec/{{spec_version}}/): the same, rendered
 

@@ -24,6 +24,8 @@ try:
 except ImportError:  # pragma: no cover
     sys.exit("The 'markdown' package is missing. Run: pip install -r requirements.txt")
 
+import spec_formats  # noqa: E402  (scripts/ is on sys.path when this file is run)
+
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "_site"
 BASE_URL = "https://" + (ROOT / "CNAME").read_text(encoding="utf-8").strip()
@@ -182,6 +184,11 @@ def render_spec(spec: str):
     return (h1.group(0) if h1 else ""), lead, sections, h2s
 
 
+def formats_links(base: str) -> str:
+    """'<a>.md</a>, <a>.txt</a>, ...': the other formats of one specification URL."""
+    return ", ".join(f'<a href="/{base}.{ext}">.{ext}</a>' for ext in ("md", "txt", "json", "xml"))
+
+
 def toc_html(entries) -> str:
     """entries: [(id, name, [(id, name), ...])] -> nested <ul>."""
     items = []
@@ -293,6 +300,7 @@ class Site:
             "spec_markdown_url": f"{BASE_URL}/spec.md",
             "latest_url": f"{BASE_URL}/spec/latest/",
             "latest_markdown_url": f"{BASE_URL}/spec/latest.md",
+            "formats": {"extensions": list(spec_formats.FORMATS), "note": "Every specification URL works with each extension: /spec.<ext>, /spec/latest.<ext> and /spec/<version>.<ext>.", "examples": [f"{BASE_URL}/spec/latest.txt", f"{BASE_URL}/spec/{v}.json", f"{BASE_URL}/spec/{v}.xml"]},
             "spec_permalink_markdown_url": f"{BASE_URL}/spec/{v}.md",
             "llms_txt_url": f"{BASE_URL}/llms.txt",
             "repository": "https://github.com/StuxGroup/DateVersioning",
@@ -362,7 +370,7 @@ class Site:
             latest = ver == self.spec_version
             note = (f'This is the permanent page for Date Versioning <strong>{esc(ver)}</strong>, which '
                     + ("is the current specification. " if latest else f'has been superseded by <a href="/spec/{esc(self.spec_version)}/">{esc(self.spec_version)}</a>. ')
-                    + f'Plain text: <a href="/spec/{esc(ver)}.md">/spec/{esc(ver)}.md</a>. The latest version is always at <a href="/spec/latest/">/spec/latest/</a> and <a href="/spec/latest.md">/spec/latest.md</a>.')
+                    + f'Also as {formats_links("spec/" + ver)}. The latest version is always at <a href="/spec/latest/">/spec/latest/</a>.')
             body = (f'<div class="doc-layout"><aside class="toc" aria-label="Table of contents"><p class="toc-title">On this page</p>{toc_html(entries)}</aside>'
                     f'<div class="prose doc-body"><div class="permalink-note"><p>{note}</p></div>'
                     f'{title_h1}{lead}{"".join(s for _i, s in sections)}</div></div>')
@@ -371,13 +379,13 @@ class Site:
                       f"The permanent page for version {ver} of the Date Versioning specification.", content,
                       sitemap={"label": f"Specification {ver}", "sources": [source], "priority": "0.8", "freq": "yearly",
                                "blurb": "The permanent page for this version of the specification."})
+            self.write_formats(f"spec/{ver}", text, ver, f"/spec/{ver}/")
             if latest:
                 # /spec/latest/ always renders the current specification (not a redirect, so tools that
                 # fetch it get the spec itself); /spec/latest.md is its plain text.
                 latest_note = (f'This page always shows the latest Date Versioning specification, currently '
                                f'<strong>{esc(ver)}</strong>. To refer to this exact version, link its permanent page, '
-                               f'<a href="/spec/{esc(ver)}/">/spec/{esc(ver)}/</a>. Plain text: '
-                               f'<a href="/spec/latest.md">/spec/latest.md</a>.')
+                               f'<a href="/spec/{esc(ver)}/">/spec/{esc(ver)}/</a>. Also as {formats_links("spec/latest")}.')
                 latest_body = body.replace(f'<div class="permalink-note"><p>{note}</p></div>',
                                            f'<div class="permalink-note"><p>{latest_note}</p></div>', 1)
                 self.page("/spec/latest/", "Date Versioning: latest specification",
@@ -385,7 +393,30 @@ class Site:
                           content.replace(body, latest_body, 1),
                           sitemap={"label": "Latest specification", "sources": [source], "priority": "0.9", "freq": "monthly",
                                    "blurb": f"Always the current specification, now {ver}."})
-                write("spec/latest.md", text)
+                self.write_formats("spec/latest", text, ver, "/spec/latest/")
+                self.write_formats("spec", text, ver, "/spec/latest/")
+
+    def write_formats(self, base: str, text: str, ver: str, page: str) -> None:
+        """<base>.md/.txt/.json/.xml/.html for one specification: change the extension, get that format."""
+        urls = {fmt: f"{BASE_URL}/{base}.{fmt}" for fmt in spec_formats.FORMATS}
+        urls.update({"page": BASE_URL + page, "permanent": f"{BASE_URL}/spec/{ver}/", "latest": f"{BASE_URL}/spec/latest/"})
+        name, _v = spec_info(text)
+        data = spec_formats.structure(
+            text, name=name, version=ver, latest=self.spec_version, urls=urls, regex=spec_regexes(text),
+            license_={"id": "CC-BY-4.0", "name": "Creative Commons Attribution 4.0 International",
+                      "url": "https://creativecommons.org/licenses/by/4.0/"},
+            prepare=prepare_markdown)
+        header = "\n".join([
+            f"Plain-text version of {BASE_URL}{page}",
+            f"Other formats: change the extension of {BASE_URL}/{base}.txt to .md, .json, .xml or .html.",
+            f"Latest specification: {BASE_URL}/spec/latest.txt",
+            f"Copyright (c) {YEAR_START} Stux.Group. Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
+        ])
+        write(base + ".md", text)
+        write(base + ".txt", spec_formats.to_text(text, prepare_markdown, header))
+        write(base + ".json", spec_formats.to_json(data))
+        write(base + ".xml", spec_formats.to_xml(data))
+        shutil.copyfile(SITE / page.strip("/") / "index.html", SITE / (base + ".html"))
 
     def build_changelogs(self) -> None:
         cards = render_changelog(read(ROOT / "CHANGELOG.md"))

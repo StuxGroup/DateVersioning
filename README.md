@@ -54,6 +54,9 @@ extensions, so headings get the same anchor ids as on GitHub. It writes `_site/`
   permanent page and file for each version (the version comes from `SPEC.md`'s first heading;
   earlier versions are kept in `spec-archive/`)
 - `/spec/latest/` and `/spec/latest.md`, always the current specification (rendered, not a redirect)
+- every specification in every format: change the extension of `/spec`, `/spec/latest` or
+  `/spec/<version>` to `.md`, `.txt` (plain text), `.json` or `.xml` (structured: metadata, the
+  numbered rules and every section) or `.html` (built by `scripts/spec_formats.py`)
 - `/llms.txt` and `/datever.json`
 - `/changelogs/` (with `/changelog/` redirecting), `/legal/` ("Boring Legal Stuff") and its six pages,
   `/sitemap/`, `sitemap.xml`, `robots.txt` and `404.html`
