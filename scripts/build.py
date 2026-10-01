@@ -304,13 +304,14 @@ class Site:
             "build_metadata_affects_precedence": False,
             "years_covered": [2000, 2099],
             "semver_form": {
-                "major": "YY without leading zeros",
+                "major": "YY without leading zeros, plus the project's major offset (rule 13; 0 unless declared)",
+                "major_offset": "a multiple of 100, chosen once when a project switches from a scheme whose versions would otherwise outrank its SemVer forms; never changes",
                 "minor": "MM without leading zeros",
                 "patch": "DD * 100 + N (N is 0 when there is no -N suffix)",
                 "build_metadata": "carried over unchanged",
                 "max_release_number": 99,
-                "reverse": {"DD": "floor(PATCH / 100)", "N": "PATCH mod 100"},
-                "examples": {"26.10.01": "26.10.100", "26.10.01-2": "26.10.102", "05.03.09-4": "5.3.904"},
+                "reverse": {"YY": "MAJOR mod 100", "DD": "floor(PATCH / 100)", "N": "PATCH mod 100"},
+                "examples": {"26.10.01": "26.10.100", "26.10.01-2": "26.10.102", "05.03.09-4": "5.3.904", "26.10.01 (major offset 100)": "126.10.100"},
                 "compare_date_versions_with_semver_rules": False,
             },
         }

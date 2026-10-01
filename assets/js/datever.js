@@ -147,6 +147,7 @@
     } else {
       valSemRow.hidden = false;
       valSem.textContent = sv;
+      notes.push("If your project declares a major offset (rule 13), add it to the first number of the SemVer form.");
     }
     valDetail.textContent = notes.join(" ");
   }
