@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://global.media.stux.group/logo.png" height="80" alt="Stux.Group Logo">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://global.media.stux.group/logo-light.png"><source media="(prefers-color-scheme: light)" srcset="https://global.media.stux.group/logo-dark.png"><img src="https://global.media.stux.group/logo-dark.png" height="80" alt="Stux.Group Logo"></picture>
 </p>
 
 # Contributing to Date Versioning

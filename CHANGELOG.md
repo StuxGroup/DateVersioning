@@ -4,6 +4,12 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.10.09
+
+### Changed
+
+- The logos and icons in the Markdown docs (README and the like) follow GitHub's light or dark theme, using each brand's `logo-light`/`logo-dark` and `icon-light`/`icon-dark` files
+
 ## v26.10.01-7
 
 ### Added

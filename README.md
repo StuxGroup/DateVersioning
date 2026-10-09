@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://global.media.stux.group/logo.png" height="100" alt="Stux.Group Logo">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://global.media.stux.group/logo-light.png"><source media="(prefers-color-scheme: light)" srcset="https://global.media.stux.group/logo-dark.png"><img src="https://global.media.stux.group/logo-dark.png" height="100" alt="Stux.Group Logo"></picture>
 </p>
 
 # Date Versioning (DateVer)
@@ -93,6 +93,6 @@ The specification (`SPEC.md` and the specification pages) is &copy; Stux.Group a
 ---
 
 *Date Versioning is a versioning standard created and maintained by [Stux.Group](https://stux.group)
-<img src="https://global.media.stux.group/icon.png" height="14" alt="Stux.Group" valign="middle">.*
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://global.media.stux.group/icon-light.png"><source media="(prefers-color-scheme: light)" srcset="https://global.media.stux.group/icon-dark.png"><img src="https://global.media.stux.group/icon-dark.png" height="14" alt="Stux.Group" valign="middle"></picture>.*
 
 "Stux.Group" is the trading name of **Stux Group Ltd**, a company registered in England and Wales (company no. 13160574), registered office 82a James Carter Road, Mildenhall, England, IP28 7DE.
