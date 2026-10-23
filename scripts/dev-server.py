@@ -38,7 +38,8 @@ def main() -> None:
         extensions_map = {**http.server.SimpleHTTPRequestHandler.extensions_map,
                           ".md": "text/markdown; charset=utf-8", ".txt": "text/plain; charset=utf-8",
                           ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml",
-                          ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8"}
+                          ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
+                          ".webmanifest": "application/manifest+json", ".ico": "image/x-icon"}
 
         def do_GET(self):  # noqa: N802
             if self.path.split("?")[0] == "/assets/js/dev-mode.js":

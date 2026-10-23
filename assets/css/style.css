@@ -274,20 +274,13 @@ h2:hover .headerlink, h3:hover .headerlink, .headerlink:focus-visible { opacity:
 .cl-entry h2 { margin: 0 0 10px; font-size: 1.2rem; font-family: var(--font-mono); letter-spacing: 0; }
 .cl-entry:first-child h2::after { content: "Latest"; margin-left: 10px; vertical-align: 2px; font: 700 0.7rem var(--font-sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--btn-fg); background: var(--btn-bg); border-radius: 999px; padding: 3px 8px; }
 .cl-label { display: inline-block; margin: 6px 0 8px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 9px; border-radius: 5px; color: var(--cl, #8a8a94); background: color-mix(in srgb, var(--cl, #8a8a94) 14%, transparent); border: 1px solid color-mix(in srgb, var(--cl, #8a8a94) 45%, transparent); }
-.cl-label-added { --cl: #1e8449; }
-.cl-label-changed { --cl: #1a6fc0; }
-.cl-label-fixed { --cl: #b8650f; }
-.cl-label-removed { --cl: #c62828; }
-.cl-label-security { --cl: #7b3fc4; }
-.cl-label-deprecated { --cl: #5f5f68; }
-@media (prefers-color-scheme: dark) {
-  .cl-label-added { --cl: #2ecc71; }
-  .cl-label-changed { --cl: #3ba7ff; }
-  .cl-label-fixed { --cl: #ffa64d; }
-  .cl-label-removed { --cl: #ff4d4d; }
-  .cl-label-security { --cl: #b06bff; }
-  .cl-label-deprecated { --cl: #8a8a94; }
-}
+/* Fixed order and colours: Added, Changed, Fixed, Removed, Security, Deprecated. */
+.cl-label-added { --cl: #2ecc71; }
+.cl-label-changed { --cl: #3ba7ff; }
+.cl-label-fixed { --cl: #ffa64d; }
+.cl-label-removed { --cl: #ff4d4d; }
+.cl-label-security { --cl: #b06bff; }
+.cl-label-deprecated { --cl: #8a8a94; }
 .cl-list { margin: 0 0 10px; padding-left: 1.2em; color: var(--text-muted); font-size: 0.95rem; }
 .cl-list li { margin: 0 0 6px; overflow-wrap: anywhere; }
 .cl-list strong { color: var(--text); }

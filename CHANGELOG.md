@@ -4,6 +4,20 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.10.23
+
+### Added
+
+- A Discord component embed in every page's `<head>` (not the 404 page): a custom link preview for the home page, each specification, the changelogs and every other page, with the Open Graph tags kept as the fallback. Left out, with a comment, if it would pass Discord's 3,000-byte limit
+- A full favicon set: `favicon.ico` (16, 32 and 48px), `apple-touch-icon.png`, and a `site.webmanifest` with 192 and 512px icons plus a maskable one, listed in every page's `<head>`
+- Tests for the Discord embeds, the favicon tags and files, the changelog parser and the version files
+
+### Changed
+
+- The changelog badges use the fixed palette in both light and dark mode: Added `#2ecc71`, Changed `#3ba7ff`, Fixed `#ffa64d`, Removed `#ff4d4d`, Security `#b06bff`, Deprecated `#8a8a94`
+- `commit.sh` and `commit.bat` reject a `VERSION.md` that isn't a real Date Version or is dated in the future, and warn when it is dated before today (UTC)
+- The local dev server serves `.webmanifest` as `application/manifest+json`
+
 ## v26.10.09
 
 ### Changed

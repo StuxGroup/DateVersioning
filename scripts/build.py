@@ -36,6 +36,22 @@ YEAR_START = 2026
 # markdown lists them in. Badge colours live in assets/css/style.css (.cl-label-*).
 CHANGELOG_ORDER = ["Added", "Changed", "Fixed", "Removed", "Security", "Deprecated"]
 
+# The icon set every page's <head> lists (one place, so no page misses one): favicon.ico (16, 32 and
+# 48px) and apple-touch-icon.png live at the site root (copied from static/), where browsers also look
+# for them on pages and files that list no icon; site.webmanifest is Android's home-screen icon set.
+FAVICON_TAGS = (
+    '  <link rel="icon" href="/favicon.ico" sizes="48x48">\n'
+    '  <link rel="icon" type="image/svg+xml" href="/assets/img/icon.svg">\n'
+    '  <link rel="icon" type="image/png" sizes="512x512" href="/assets/img/icon-512.png">\n'
+    '  <link rel="apple-touch-icon" href="/apple-touch-icon.png">\n'
+    '  <link rel="manifest" href="/site.webmanifest">\n'
+)
+
+# Discord component embeds (https://docs.discord.com/developers/link-previews/component-embeds): a
+# custom link preview in each page's <head>; the Open Graph tags stay as the fallback.
+DISCORD_EMBED_MAX_BYTES = 3000
+SITE_NAME = "Date Versioning"
+
 LEGAL = [
     ("privacy", "Privacy Policy", "What we collect (nothing) and which requests your browser makes."),
     ("terms", "Terms and Ethics", "The rules for using the site, and using it responsibly."),
@@ -76,6 +92,60 @@ def git_date(*sources: str) -> str:
     except OSError:
         return ""
     return out
+
+
+# --------------------------------------------------------------------------- Discord embeds
+
+def discord_md(s: str) -> str:
+    """Escape Discord markdown so data (titles, descriptions) shows as plain text: inline formatting,
+    link brackets and backslashes anywhere; headings, quotes and lists only at a line start. Each
+    special character gets one backslash in front of it."""
+    s = re.sub(r"([\\*_~`|\[\]])", lambda m: "\\" + m.group(1), s)
+    return re.sub(r"(?m)^([#>-])", lambda m: "\\" + m.group(1), s)
+
+
+def discord_text(content: str) -> dict:
+    return {"type": 10, "content": content}
+
+
+def discord_buttons(links: list[tuple[str, str]]) -> dict:
+    """A row of link buttons from (label, absolute URL) pairs. Buttons may only use these keys."""
+    return {"type": 1, "components": [{"type": 2, "style": 5, "label": label[:80], "url": url} for label, url in links]}
+
+
+def discord_section(content: str) -> dict:
+    """Text with the Date Versioning icon beside it."""
+    return {"type": 9, "components": [discord_text(content)],
+            "accessory": {"type": 11, "media": {"url": BASE_URL + "/assets/img/icon-512.png"}}}
+
+
+def discord_payload(components: list[dict]) -> str | None:
+    """The JSON for one root Container, or None when it's over Discord's 3,000-byte limit."""
+    payload = {"component": {"type": 17, "accent_color": int(ACCENT_HEX, 16), "components": components}}
+    data = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    data = data.replace("</", "<\\/")  # can't close the <script> early; JSON reads <\/ back as </
+    return None if len(data.encode("utf-8")) > DISCORD_EMBED_MAX_BYTES else data
+
+
+def discord_embed(components: list[dict]) -> str:
+    """The <script> tag, or a comment when it would be over the limit (Discord then shows Open Graph)."""
+    data = discord_payload(components)
+    if data is None:
+        return f"  <!-- discord:component-embed left out: over {DISCORD_EMBED_MAX_BYTES} bytes -->\n"
+    return f'  <script id="discord:component-embed" type="application/json">{data}</script>\n'
+
+
+def discord_site_label() -> str:
+    """The small site name above a page's title (Discord subtext), like a normal preview's."""
+    return f"-# [{SITE_NAME}]({BASE_URL}/)\n"
+
+
+def discord_page_embed(title: str, desc: str, url: str) -> str:
+    """Any page without its own preview: its name and description, with a way into the specification."""
+    return discord_embed([
+        discord_section(f"{discord_site_label()}## [{discord_md(title)}]({url})\n{discord_md(desc)}"),
+        discord_buttons([("Open", url), ("Read the specification", BASE_URL + "/spec/latest/")]),
+    ])
 
 
 # --------------------------------------------------------------------------- the specification
@@ -245,13 +315,18 @@ class Site:
 
     # -- page shell
     def page(self, path: str, title: str, description: str, content: str, *, scripts: str = "",
-             robots: bool = True, sitemap: dict | None = None, filename: str | None = None) -> None:
+             robots: bool = True, sitemap: dict | None = None, filename: str | None = None,
+             discord: str | None = None) -> None:
+        """discord: the page's Discord embed tag, "" for none (the 404 page); None gives the generic one."""
         canonical = BASE_URL + path
+        if discord is None:
+            discord = discord_page_embed(re.sub(r" - Date Versioning$", "", title), description, canonical)
         text = fill(
             self.base_tpl,
             title=esc(title), description=esc(description), canonical=canonical, content=content, scripts=scripts,
             robots="" if robots else '  <meta name="robots" content="noindex">\n',
             year_text=self.year_text, site_version=esc(self.site_version),
+            favicons=FAVICON_TAGS, discord=discord,
         )
         write(filename or (path.lstrip("/") + "index.html"), text)
         if sitemap:
@@ -277,12 +352,58 @@ class Site:
       </div>
     </section>"""
 
+    # -- Discord embeds for the main page types (everything else gets discord_page_embed)
+    def discord_home(self) -> str:
+        """The home page: what Date Versioning is, the current specification, and where to go next."""
+        v = discord_md(self.spec_version)
+        return discord_embed([
+            discord_section(f"# [{SITE_NAME}]({BASE_URL}/)\n**Version numbers that are release dates.**\n"
+                            "A version is the UTC date it was released: `YY.MM.DD`, with `-1`, `-2` and so on "
+                            "for further releases the same day."),
+            {"type": 14},
+            discord_text(f"### Specification {v}\n`26.10.01` < `26.10.01-1` < `26.10.02` · a SemVer form for "
+                         "registries that need one · CC BY 4.0\n-# A versioning standard by Stux.Group"),
+            discord_buttons([("Read the specification", BASE_URL + "/spec/latest/"), ("Try it", BASE_URL + "/#try"),
+                             ("GitHub", "https://github.com/StuxGroup/DateVersioning")]),
+        ])
+
+    def discord_spec(self, ver: str, url: str, *, latest_page: bool = False) -> str:
+        """A specification page: which version it is, whether it's current, and its other formats."""
+        current = ver == self.spec_version
+        title = f"{SITE_NAME}: latest specification" if latest_page else f"{SITE_NAME} {ver}"
+        status = (f"Always the current specification, now {ver}." if latest_page
+                  else "The current specification." if current
+                  else f"Superseded by {self.spec_version}.")
+        base = "spec/latest" if latest_page else f"spec/{ver}"
+        links = [("Read it", url), ("Markdown", f"{BASE_URL}/{base}.md")]
+        links.append(("Latest specification", BASE_URL + "/spec/latest/") if not current else ("Try it", BASE_URL + "/#try"))
+        return discord_embed([
+            discord_section(f"{discord_site_label()}## [{discord_md(title)}]({url})\n{discord_md(status)}\n"
+                            "-# Also as .md, .txt, .json, .xml and .html"),
+            discord_buttons(links),
+        ])
+
+    def discord_changelogs(self, url: str) -> str:
+        """The changelogs page: the current version and the newest release's sections."""
+        newest = re.search(r"(?m)^## (.+)$", read(ROOT / "CHANGELOG.md"))
+        line = f"\nNewest: **{discord_md(newest.group(1).strip())}**" if newest else ""
+        return discord_embed([
+            discord_section(f"{discord_site_label()}## [Changelogs]({url})\nWhat changed on the site and in the "
+                            f"specification, release by release, newest first.{line}\n"
+                            f"-# Current version v{discord_md(self.site_version)}"),
+            discord_buttons([("Open", url), ("CHANGELOG.md", "https://github.com/StuxGroup/DateVersioning/blob/main/CHANGELOG.md")]),
+        ])
+
     # -- pieces
     def build_assets(self) -> None:
         if SITE.exists():
             shutil.rmtree(SITE)
         SITE.mkdir()
         shutil.copytree(ROOT / "assets", SITE / "assets")
+        # favicon.ico, apple-touch-icon.png and site.webmanifest belong at the site root.
+        for f in sorted((ROOT / "static").iterdir()):
+            if f.is_file():
+                shutil.copyfile(f, SITE / f.name)
         for name in ("CNAME", "CHANGELOG.md", "VERSION.md"):
             shutil.copyfile(ROOT / name, SITE / name)
         shutil.copyfile(ROOT / "SPEC.md", SITE / "spec.md")  # byte for byte
@@ -348,7 +469,7 @@ class Site:
         self.page("/", "Date Versioning (DateVer): version numbers that are release dates",
                   "Date Versioning (DateVer) is a versioning standard in which a version is the date it was released: YY.MM.DD, "
                   "with -1, -2 and so on for further releases the same day. Created and maintained by Stux.Group.",
-                  content, scripts=scripts,
+                  content, scripts=scripts, discord=self.discord_home(),
                   sitemap={"label": "Home", "sources": ["SPEC.md", "templates/home.html", "templates/base.html"], "priority": "1.0", "freq": "monthly",
                            "blurb": "The specification, a version validator and a next-version tool."})
 
@@ -378,6 +499,7 @@ class Site:
             content = (f'    <section class="section" style="padding-top: 36px;"><div class="container">\n{body}\n    </div></section>')
             self.page(f"/spec/{ver}/", f"Date Versioning {ver}: specification",
                       f"The permanent page for version {ver} of the Date Versioning specification.", content,
+                      discord=self.discord_spec(ver, f"{BASE_URL}/spec/{ver}/"),
                       sitemap={"label": f"Specification {ver}", "sources": [source], "priority": "0.8", "freq": "yearly",
                                "blurb": "The permanent page for this version of the specification."})
             self.write_formats(f"spec/{ver}", text, ver, f"/spec/{ver}/")
@@ -392,6 +514,7 @@ class Site:
                 self.page("/spec/latest/", "Date Versioning: latest specification",
                           f"The latest version of the Date Versioning specification, currently {ver}.",
                           content.replace(body, latest_body, 1),
+                          discord=self.discord_spec(ver, BASE_URL + "/spec/latest/", latest_page=True),
                           sitemap={"label": "Latest specification", "sources": [source], "priority": "0.9", "freq": "monthly",
                                    "blurb": f"Always the current specification, now {ver}."})
                 self.write_formats("spec/latest", text, ver, "/spec/latest/")
@@ -426,7 +549,7 @@ class Site:
         desc = ('What changed on this site and in the specification, release by release, newest first. Source: '
                 '<a href="https://github.com/StuxGroup/DateVersioning/blob/main/CHANGELOG.md">CHANGELOG.md</a>.')
         self.page("/changelogs/", "Changelogs - Date Versioning", "Release notes for Date Versioning, release by release.",
-                  self.subpage([], "Changelogs", desc, body),
+                  self.subpage([], "Changelogs", desc, body), discord=self.discord_changelogs(BASE_URL + "/changelogs/"),
                   sitemap={"label": "Changelogs", "sources": ["CHANGELOG.md"], "priority": "0.3", "freq": "monthly",
                            "blurb": "Release notes, release by release, newest first."})
         # /changelog/ -> /changelogs/
@@ -438,6 +561,7 @@ class Site:
 <title>Changelogs - Date Versioning</title>
 <link rel="canonical" href="{BASE_URL}/changelogs/">
 <meta name="robots" content="noindex">
+{FAVICON_TAGS}{self.discord_changelogs(BASE_URL + "/changelogs/")}
 <!-- /changelog/ moved to /changelogs/; keep any #hash when redirecting. -->
 <script>location.replace("/changelogs/" + location.hash);</script>
 <meta http-equiv="refresh" content="0; url=/changelogs/">
@@ -477,7 +601,7 @@ class Site:
       <a class="btn btn-primary" href="/">&larr; Back to Date Versioning</a>
     </section>"""
         self.page("/404.html", "Page Not Found - Date Versioning", "Page not found: Date Versioning.", content,
-                  robots=False, filename="404.html")
+                  robots=False, filename="404.html", discord="")  # no link preview for an error page
 
     def build_sitemap(self) -> None:
         self.pages.sort(key=lambda p: (-float(p["priority"]), p["path"]))
@@ -506,6 +630,8 @@ class Site:
             self.base_tpl,
             title="Sitemap - Date Versioning", description="Every page on Date Versioning, with a link to the XML sitemap.",
             canonical=BASE_URL + "/sitemap/", robots="", scripts="", year_text=self.year_text, site_version=esc(self.site_version),
+            favicons=FAVICON_TAGS,
+            discord=discord_page_embed("Sitemap", "Every page on Date Versioning, with a link to the XML sitemap.", BASE_URL + "/sitemap/"),
             content=self.subpage([], "Sitemap", 'Every page on this site. Looking for the XML version? <a href="/sitemap.xml">sitemap.xml</a>', body),
         ))
 
