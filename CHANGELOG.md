@@ -4,6 +4,14 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.11.06
+
+### Changed
+
+- The release steps in `README.md` and `CONTRIBUTING.md` describe the branch flow: work and release tags on `test`,
+  reaching `main` (and the live site) through a pull request. `commit.sh` and `commit.bat` suggest pushing to `test`
+- CI also runs on pushes to `test`
+
 ## v26.10.23
 
 ### Added

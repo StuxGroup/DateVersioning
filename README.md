@@ -81,8 +81,11 @@ On Windows use `dev-server.bat`. Changes need a rebuild: stop the server and run
 3. If the specification changed, update the version in `SPEC.md`'s first heading to match
 4. Update this README if relevant
 5. Run `./commit.sh` (or `commit.bat`): it reads `VERSION.md`, commits, and tags `vYY.MM.DD`
-6. `git push origin main --tags`; the release workflow then publishes a GitHub Release from the
+6. `git push origin test --tags`; the release workflow then publishes a GitHub Release from the
    matching `CHANGELOG.md` section
+7. Open a pull request from `test` into `main`; the site deploys when it's merged
+
+Work happens on `test` (or a branch off it), never on `main`. Changes reach `main` only through a pull request from `test`; the release commit and tag are made on `test` and go live when the pull request is merged.
 
 ## License
 

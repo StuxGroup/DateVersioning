@@ -62,6 +62,7 @@ This project versions itself with Date Versioning.
   bare bullet list under a version
 - `commit.sh` (bash) and `commit.bat` (Windows) read `VERSION.md` and handle the commit and
   `git tag vYY.MM.DD`; the release workflow publishes a GitHub Release when the tag is pushed
+- Work happens on `test` (or a branch off it), never on `main`. Changes reach `main` only through a pull request from `test`; the release commit and tag are made on `test` and go live when the pull request is merged.
 
 ## Before committing
 
