@@ -4,6 +4,16 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.11.06-1
+
+### Added
+
+- A **Branches** section in `CONTRIBUTING.md`: work on `test`, reach `main` only through a pull request that needs CI to pass and is merged by Leo, with release commits and tags made on `test`
+
+### Changed
+
+- `README.md`'s Versioning section says releases are tagged on `test` and go live when the pull request into `main` is merged
+
 ## v26.11.06
 
 ### Changed

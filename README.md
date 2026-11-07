@@ -74,6 +74,11 @@ pip install -r requirements.txt
 On Windows use `dev-server.bat`. Changes need a rebuild: stop the server and run it again. See
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Versioning
+
+This repository is versioned with Date Versioning itself: `YY.MM.DD`, the UTC release date, with `-1`, `-2`
+and so on for later releases the same day. Releases are committed and tagged on the `test` branch and go live when the pull request from `test` into `main` is merged; see [Branches](CONTRIBUTING.md#branches).
+
 ## Releasing
 
 1. Update `CHANGELOG.md` (sections in the order Added, Changed, Fixed, Removed, Security, Deprecated)

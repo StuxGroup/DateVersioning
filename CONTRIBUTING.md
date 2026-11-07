@@ -52,6 +52,12 @@ as production does (no dev banner). Changes need a rebuild: stop the server and 
   colours (`#2ecc71`, `#3ba7ff`, `#ffa64d`, `#ff4d4d`, `#b06bff`, `#8a8a94`). The build sorts them with
   an explicit order array, unknown types last.
 
+## Branches
+
+- Work on `test`, or on a feature branch off it. Never push to `main`
+- Changes reach `main` only through a pull request from `test` into `main`, which needs CI to pass and is reviewed and merged by Leo
+- Merging into `main` deploys datevers.ing to GitHub Pages; release commits and tags are made on `test` (`git push origin test --tags`) and go live when the pull request is merged
+
 ## Versioning and changelog
 
 This project versions itself with Date Versioning.
@@ -62,7 +68,6 @@ This project versions itself with Date Versioning.
   bare bullet list under a version
 - `commit.sh` (bash) and `commit.bat` (Windows) read `VERSION.md` and handle the commit and
   `git tag vYY.MM.DD`; the release workflow publishes a GitHub Release when the tag is pushed
-- Work happens on `test` (or a branch off it), never on `main`. Changes reach `main` only through a pull request from `test`; the release commit and tag are made on `test` and go live when the pull request is merged.
 
 ## Before committing
 
