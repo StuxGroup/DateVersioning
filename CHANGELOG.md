@@ -4,6 +4,20 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.11.13-1
+
+### Fixed
+
+- The registered office ends "England, United Kingdom": 124 City Road, London, EC1V 2NX, England,
+  United Kingdom
+
+## v26.11.13
+
+### Changed
+
+- The Imprint, Privacy Policy and README show Stux Group Ltd's new registered office, 124 City Road,
+  London, EC1V 2NX, England
+
 ## v26.11.06-1
 
 ### Added
