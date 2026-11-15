@@ -4,6 +4,16 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.11.15-1
+
+### Changed
+
+- **Three-branch flow: `test` → `staging` → `main`.** Work and releases stay on `test`; `staging` only changes
+  through a pull request from `test`, and `main` (live) only through one from `staging`. `commit.sh` /
+  `commit.bat` refuse to run on `staging` or `main`, and print the push command and both `gh pr create` commands.
+  CI also runs on `staging` pushes and on pull requests into `staging`; deploys still come only from `main`.
+  CONTRIBUTING's "Branches and going live" and the README describe it
+
 ## v26.11.15
 
 ### Added
