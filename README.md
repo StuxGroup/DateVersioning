@@ -78,7 +78,7 @@ On Windows use `dev-server.bat`. Changes need a rebuild: stop the server and run
 ## Versioning
 
 This repository is versioned with Date Versioning itself: `YY.MM.DD`, the UTC release date, with `-1`, `-2`
-and so on for later releases the same day. Releases are committed and tagged on the `test` branch and go live when the pull request from `test` into `main` is merged; see [Branches](CONTRIBUTING.md#branches).
+and so on for later releases the same day. Releases are committed and tagged on the `test` branch and go live through pull requests from `test` into `staging`, then from `staging` into `main`; see [Branches and going live](CONTRIBUTING.md#branches-and-going-live).
 
 ## Releasing
 
@@ -89,9 +89,9 @@ and so on for later releases the same day. Releases are committed and tagged on 
 5. Run `./commit.sh` (or `commit.bat`): it reads `VERSION.md`, commits, and tags `vYY.MM.DD`
 6. `git push origin test --tags`; the release workflow then publishes a GitHub Release from the
    matching `CHANGELOG.md` section
-7. Open a pull request from `test` into `main`; the site deploys when it's merged
+7. Open a pull request from `test` into `staging` (`gh pr create --base staging --head test`); once it's merged and checked, open one from `staging` into `main` (`gh pr create --base main --head staging`). The site deploys when that one is merged
 
-Work happens on `test` (or a branch off it), never on `main`. Changes reach `main` only through a pull request from `test`; the release commit and tag are made on `test` and go live when the pull request is merged.
+Work happens on `test` (or a branch off it), never on `main`. Changes reach `main` only through a pull request from `staging`, and `staging` only through one from `test`; the release commit and tag are made on `test` and go live when the pull request is merged.
 
 ## License
 
