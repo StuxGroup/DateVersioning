@@ -69,6 +69,7 @@ extensions, so headings get the same anchor ids as on GitHub. It writes `_site/`
 pip install -r requirements.txt
 ./dev-server.sh                      # builds, then serves _site/ at http://127.0.0.1:8080, DEV_MODE forced on
 ./dev-server.sh 3000 --no-dev-mode   # another port, and behave like production
+./dev-server.sh --lan               # also open it from a phone on your network (prints the addresses)
 ```
 
 On Windows use `dev-server.bat`. Changes need a rebuild: stop the server and run it again. See

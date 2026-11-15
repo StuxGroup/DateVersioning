@@ -4,6 +4,14 @@ All notable changes to Date Versioning (datevers.ing) are documented here. This 
 versioned with [Date Versioning](https://datevers.ing) itself: `YY.MM.DD`, with `-1`, `-2`
 and so on for further releases on the same day.
 
+## v26.11.15
+
+### Added
+
+- `dev-server.sh`/`.bat` (and `scripts/dev-server.py`) accept `--lan`: the dev server listens on `0.0.0.0` so phones and other
+  devices on the local network can open it, and prints the addresses to open (one per IPv4 address, minus
+  loopback). Without it, the server stays on `127.0.0.1` only
+
 ## v26.11.13-1
 
 ### Fixed

@@ -1,8 +1,10 @@
 #!/bin/bash
 # Date Versioning - local dev server: builds the site, then serves _site/
-# Usage: ./dev-server.sh [port] [--no-dev-mode]
+# Usage: ./dev-server.sh [port] [--no-dev-mode] [--lan]
 #   port            default: 8080
 #   --no-dev-mode   don't force DEV_MODE on for this run (see scripts/dev-server.py)
+#   --lan           listen on all interfaces so phones/tablets on your network can
+#                   connect (prints the addresses to open); default is 127.0.0.1 only
 # Needs Python 3 and `pip install -r requirements.txt`.
 set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

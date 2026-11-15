@@ -38,6 +38,9 @@ pip install -r requirements.txt
 Python 3 and the pinned `markdown` package are the only requirements. `dev-server.sh` (or
 `dev-server.bat`) runs `scripts/build.py`, then serves `_site/`. Pass `--no-dev-mode` to see the site
 as production does (no dev banner). Changes need a rebuild: stop the server and run it again.
+`--lan` also serves it to phones and other devices on your local network: it listens on
+`0.0.0.0` instead of `127.0.0.1` and prints the addresses to open (usually the `192.168.x.x` one;
+allow Python through the firewall if asked).
 
 ## Project conventions
 

@@ -5,28 +5,51 @@ Builds the site (scripts/build.py), then serves _site/ at http://127.0.0.1:<port
 generated on the fly instead of read from disk: /assets/js/dev-mode.js, so DEV_MODE can be forced on
 for local runs without ever touching the real, always-`false` file in assets/js/dev-mode.js.
 
-Usage: python scripts/dev-server.py [port] [--no-dev-mode]
+Usage: python scripts/dev-server.py [port] [--no-dev-mode] [--lan]
   port            default: 8080
   --no-dev-mode   don't force DEV_MODE on for this run (behave like production)
+  --lan           listen on all interfaces so phones/tablets on your network can
+                  connect (prints the addresses to open); default is 127.0.0.1 only
 
 Copyright (c) 2026 Stux.Group. All rights reserved.
 """
 import functools
 import http.server
+import re
 import socketserver
 import subprocess
 import sys
+import platform
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "_site"
 
 
+def lan_addresses() -> list:
+    """This machine's IPv4 addresses (Windows, macOS or Linux), minus loopback."""
+    system = platform.system()
+    cmd = ["ipconfig"] if system == "Windows" else ["ifconfig"] if system == "Darwin" else ["hostname", "-I"]
+    try:
+        out = subprocess.run(cmd, capture_output=True, text=True, errors="replace").stdout
+    except OSError:
+        return []
+    if system == "Windows":
+        found = re.findall(r"IPv4[^:]*:\s*([\d.]+)", out)
+    elif system == "Darwin":
+        found = re.findall(r"inet ([\d.]+)", out)
+    else:
+        found = out.split()
+    return [a for a in found if re.fullmatch(r"[\d.]+", a) and not a.startswith("127.")]
+
+
 def main() -> None:
-    port, dev_mode = 8080, True
+    port, dev_mode, host = 8080, True, "127.0.0.1"
     for arg in sys.argv[1:]:
         if arg == "--no-dev-mode":
             dev_mode = False
+        elif arg == "--lan":
+            host = "0.0.0.0"
         elif arg.isdigit():
             port = int(arg)
         else:
@@ -71,13 +94,18 @@ def main() -> None:
 
     handler = functools.partial(Handler, directory=str(SITE))
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.ThreadingTCPServer(("127.0.0.1", port), handler) as httpd:
+    with socketserver.ThreadingTCPServer((host, port), handler) as httpd:
         print(f"Date Versioning running at http://127.0.0.1:{port}")
+        if host == "0.0.0.0":
+            print("On your local network (--lan), open one of these on the other device:")
+            for addr in lan_addresses():
+                print(f"    http://{addr}:{port}/")
+            print("  (usually the 192.168.x.x one; allow Python through the firewall if asked)")
         if dev_mode:
             print("DEV_MODE forced on for this run (banner shows). Pass --no-dev-mode to disable.")
         else:
             print("DEV_MODE forced off for this run: behaving like production.")
-        print("Edits need a rebuild: stop the server and run it again.")
+        print("Edits need a rebuild: stop the server and run it again.", flush=True)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
